@@ -1,0 +1,63 @@
+IMPORT FILE
+Monogoimport filename -d dataBaseName -c collectionName --jsonArray --drop
+
+SECTION 8: UPDATE OPERATIONS
+----Updating matched array elements----
+db.persons.updateMany({hobbies: {$elemMatch: {title: "Sports", frequency: {$gte: 3}}}}, {$set: {"hobbies.$.highFrequency": true}})
+
+---Updating all array elements---
+db.persons.updateMany({totalAge: {$gt: 30}}, {$inc: {"hobbies.$[].frequency": -1}})
+
+---Finding and updating specific fields---
+db.persons.updateMany({"hobbies.frequency": {$gt: 2}}, {$set: {"hobbies.$[el].goodFrequency": true}}, {arrayFilters: [{"el.frequency": {$gt: 2}}]})
+
+---Adding elements to arrays---
+db.persons.updateOne({name: "Maria"}, {$push: {hobbies: {title: "Sports", frequency: 2}}})
+
+db.persons.updateOne({name: "Maria"}, {$push: {hobbies: {$each: [{title: "Good wine", frequency: 1}, {title: "Hiking", frequency: 2}]}}})
+
+db.persons.updateOne({name: "Maria"}, {$push: {hobbies: {title: "Sports", frequency: 2}}})
+
+db.persons.updateOne({name: "Maria"}, {$push: {hobbies: {$each: [{title: "Good wine", frequency: 1}, {title: "Hiking", frequency: 2}], $sort: {frequency: -1}}}})
+
+---Removing elements from arrays---
+db.persons.updateOne({name: "Maria"}, {$pull: {hobbies: {title: "Hiking"}}})
+db.persons.updateOne({name: "Maria"}, {$pull: {hobbies: {title: "Good wine"}}})
+
+#remove last element in array
+db.persons.updateOne({name: "Chris"}, {$pop: {hobbies: 1}})
+#remove first element in array
+db.persons.updateOne({name: "Chris"}, {$pop: {hobbies: -1}})
+
+db.persons.updateOne({name: "Maria"}, {$addToSet: {hobbies: {title: "Hiking", frequency: 2}}})
+
+SECTION 9: UNDERSTANDING DELETE OPERATIONS
+---understanding deleteOne() and deleteMany()---
+db.persons.deleteMany({totalAge: {$exists: false}, isSporty: true})
+
+#deletes all
+db.persons.deleteMany({})
+
+SECTION 11 GEOSPACIAL DATA
+--- Adding geospatial index to track distance ---
+db.places.find({location: {$near: {$geometry: {type: "Point", coordinates: [-122.47114, 37.771104]}, $maxDistance: 500, $minDistance: 10}}})
+
+db.places.insertOne({name: "California Academy of Sciences", location: {type: "Point", coordinates: [-122.472436, 37.7672544]}})
+
+db.places.createIndex({location: "2dsphere"})
+
+db.places.find({location: {$near: {$geometry: {type: "Point", coordinates: [-122.47114, 37.771104]}}}})
+
+db.places.insertOne({name: "Conservatory of Flowers", location: "Point", coordinates: [-122.4624498, 37.7726187]})
+
+---  finding places within a certain radius---
+db.places.find({location: {$geoWithin: {$centerSphere: [[-122.4292815, 37.7767853], 1 / 6378.1]}}})
+
+SECTION 12: UNDERSTANDING THE AGGREGATION FRAMEWORK
+---  ---
+
+
+
+
+
+
